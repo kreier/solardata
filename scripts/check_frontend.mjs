@@ -597,21 +597,56 @@ check('a band does not flag the real readings a distribution test used to drop',
   for (const day of mustSurvive) {
     assert.ok(!flagged.has(day), `${day} was wrongly flagged as out of band`)
   }
-  // The four that really are out of band: the unconverted-millivolt commissioning
-  // window, and the test pattern.
-  assert.deepEqual(
-    [...flagged].sort(),
-    ['2020-06-15', '2020-06-16', '2020-06-17', '2020-10-01'],
+  // Two days are out of band, not four, and that is the point.
+  //
+  // 2020-06-15 and 2020-06-16 were previously raw millivolts in a column
+  // documented as volts -- 4,570 "V" and 20,890 "V" -- and therefore flagged.
+  // The applet was recompiled on 2020-06-17 15:20 local, those two days are
+  // entirely inside the millivolt window, and the collector confirmed the
+  // boundary, so they are now scaled and sit at 4.57 V and 6.54 V.
+  //
+  // 2020-06-17 is the day the recompile happened, so the day holds both units and
+  // the rollup deliberately leaves it unscaled rather than pick a side. It is
+  // still out of band, and it should be: the site has to be able to see it.
+  assert.deepEqual([...flagged].sort(), ['2020-06-17', '2020-10-01'])
+})
+
+check('a day the collector scaled is no longer published in the wrong unit', () => {
+  // The 2020-06-15 and 2020-06-16 rows used to read 4,570 and 6,539 in a column
+  // whose unit is volts, because the applet was logging millivolts and the
+  // regime covering that window was still unconfirmed. It is confirmed now, and
+  // these two numbers are the whole reason the band test existed.
+  const rows = parseCsv(readFileSync(join(DATA, 'aisvn', 'daily', '2020.csv'), 'utf8'))
+  const scaled = rows.filter((r) => r.scaled_channels && r.scaled_channels.includes('solar_v'))
+  assert.ok(scaled.length >= 2, `expected at least two scaled days, got ${scaled.length}`)
+  for (const row of scaled) {
+    const value = num(row.solar_v_avg)
+    assert.ok(value !== null && value < 100, `${row.day}: solar_v_avg ${value} is not volts`)
+  }
+  // And the day the recompile happened is left alone rather than half-scaled.
+  const boundary = rows.find((r) => r.day === '2020-06-17')
+  assert.ok(boundary, '2020-06-17 is missing')
+  assert.equal(
+    boundary.scaled_channels,
+    '',
+    'a day containing both units must not be scaled by either',
   )
 })
 
 check('a flag is not a verdict, and a 100% flag rate is treated as a bad band', () => {
-  // 23 of aisvn's 101 days in 2020 sit above the 9-16 V 3S LiPo band. They are
-  // drawn, ringed and listed. The site must not quietly present the 78 in-band
-  // days as the whole picture, and must not have deleted the other 23 either.
+  // 21 of aisvn's 101 days in 2020 sit above the 9-16 V 3S LiPo band. They are
+  // drawn, ringed and listed. The site must not quietly present the 80 in-band
+  // days as the whole picture, and must not have deleted the other 21 either.
+  //
+  // This was 23 before the collector confirmed the recompile boundary: 2020-06-15
+  // and 2020-06-16 were raw millivolts (12,385 and 12,483 "V") and flagged. They
+  // are now scaled to 12.385 V and 12.483 V, which is where a 3S LiPo sits, and
+  // they are no longer anomalies. The 21 that remain are the real question --
+  // a battery reading up to 29.6 V is a second pack or a scale nobody has
+  // confirmed, and the band is what makes that visible.
   const rows = parseCsv(readFileSync(join(DATA, 'aisvn', 'daily', '2020.csv'), 'utf8'))
   const flagged = flaggedDays(rows, ['battery_v_min'])
-  assert.equal(flagged.length, 23, `expected 23 battery-flagged days, got ${flagged.length}`)
+  assert.equal(flagged.length, 21, `expected 21 battery-flagged days, got ${flagged.length}`)
   assert.ok(flagged.length < rows.length, 'every day flagged means the band is wrong, not the data')
 })
 

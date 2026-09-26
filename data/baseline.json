@@ -7,15 +7,15 @@
     "duplicate_ts": 4399,
     "malformed_rejects": 220180,
     "notes": 10,
-    "unconfirmed_regimes": 11,
+    "unconfirmed_regimes": 3,
     "headerless_without_donor": 0,
     "hourly_buckets": 25649,
     "daily_buckets": 1194
   },
   "recorded": {
-    "tool_version": "0.5.0",
-    "run_started_at": "2026-09-26T06:00:36Z",
+    "tool_version": "0.7.1",
+    "run_started_at": "2026-09-26T14:26:09Z",
     "ingest_notes": "364 files; 734908 rows; 4399 duplicate timestamps absorbed; 224579 rejected",
-    "reason": "apply collector-confirmed unit scales in a new aggregate stage; confirmed regimes now windowed to the channel extent, which promotes 3 detector proposals to confirmed (14 -> 11 unconfirmed)"
+    "reason": "collector confirms the aisvn applet recompile at 2020-06-17 15:20 local (15:20 = 08:20Z; the sheet re-declares its header at row 1482 and five channels step ~1000x in the same sample), so eight scale windows move from unconfirmed to confirmed with explicit boundaries: unconfirmed_regimes 11 -> 3. Confirms 2020-06-15 and 2020-06-16 as millivolts, which stops the rollups publishing 4,570 and 6,539 in a column whose unit is volts."
   }
 }

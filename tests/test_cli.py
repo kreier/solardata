@@ -290,7 +290,10 @@ class TestCommittedBaseline(unittest.TestCase):
         self.assertEqual(counts["stations"], 8)
         self.assertEqual(counts["duplicate_ts"], 4399)
         self.assertEqual(counts["notes"], 10)
-        self.assertEqual(counts["unconfirmed_regimes"], 11)
+        # Was 11 until the collector confirmed the aisvn recompile boundary and
+        # eight millivolt windows with it. The count is deliberately small: every
+        # remaining one needs the firmware, not more data.
+        self.assertEqual(counts["unconfirmed_regimes"], 3)
         self.assertEqual(counts["headerless_without_donor"], 0)
 
     def test_malformed_rejects_cover_the_excluded_and_nulled_cells(self):
