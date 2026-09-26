@@ -104,14 +104,14 @@ names. These windows are flagged for review; **no value has been rescaled**.
 
 | station | column | window | proposed scale | confidence |
 |---|---|---|---:|---|
-| `aisvn` | `battery_v` | 2020-06-15T06:10:00Z -> 2020-06-18T01:48:00Z | x0.001 | low |
-| `aisvn` | `lipo_v` | 2020-06-15T06:10:00Z -> 2020-06-18T01:48:00Z | x0.001 | low |
-| `aisvn` | `lipo_v` | 2020-08-24T08:27:00Z -> 2020-10-25T19:17:00Z | x10 | low |
-| `aisvn` | `load_v` | 2020-06-15T06:10:00Z -> 2020-06-18T01:48:00Z | x0.001 | medium |
-| `aisvn` | `solar2_v` | 2020-06-15T06:10:00Z -> 2020-06-18T01:48:00Z | x0.001 | medium |
-| `aisvn` | `solar_v` | 2020-06-15T06:10:00Z -> 2020-06-18T01:48:00Z | x0.001 | medium |
-| `aisvn` | `solar_v` | 2020-08-24T08:27:00Z -> 2020-10-25T19:17:00Z | x0.001 | medium |
-| `aisvn` | `temp_c` | 2020-06-15T06:10:00Z -> 2020-06-18T01:48:00Z | x0.1 | low |
+| `aisvn` | `battery_v` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
+| `aisvn` | `current_a` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
+| `aisvn` | `lipo_v` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
+| `aisvn` | `load_v` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
+| `aisvn` | `solar2_v` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
+| `aisvn` | `solar_v` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
+| `aisvn` | `temp_c` | 2020-06-17T04:12:00Z -> 2020-06-17T08:20:00Z | x0.1 | high |
+| `aisvn` | `wind_v` | 2020-06-15T06:10:00Z -> 2020-06-17T08:20:00Z | x0.001 | high |
 | `aisvn-solar` | `lipo_v` | 2020-05-21T02:52:00Z -> 2020-06-13 | x0.001 | high |
 | `aisvn-solar` | `solar_v` | 2020-05-21T02:52:00Z -> 2020-06-13 | x0.001 | high |
 | `aisvn2` | `battery2_v` | 2020-06-18T09:45:00Z -> 2021-11-02 | x0.001 | high |
