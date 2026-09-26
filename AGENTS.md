@@ -167,9 +167,9 @@ A change that silently alters the reading count is a bug even if every test
 passes, so treat the report as the acceptance test for data changes — and let
 `verify` enforce it, because it is the only check that sees the real archive.
 
-Current baseline, for comparison: **734,908 readings** across 8 stations from
-364 files, 4,399 duplicate timestamps absorbed, 220,180 rejected cells, 10
-recovered notes, 3 unconfirmed scale regimes.
+Current baseline, for comparison: **730,914 readings** across 8 stations from
+364 files, 2,249 duplicate timestamps absorbed, 226,321 rejected cells, 12
+recovered notes, 2 unconfirmed scale regimes.
 
 ### When the numbers *should* move
 
@@ -361,10 +361,12 @@ These are recorded, not solved. Do not quietly decide them in code.
    collector was down, no data was lost in the Sheets export.** No action
    needed; recorded so nobody goes looking for a bug.
 8. **Non-production stations** stay excluded from published exports.
-   `test` is two unrelated layouts in one folder: an 11-column solar schema
-   before 2020-07-01 and a 4-column probe (`nix`, `temp`, `wifi`) after, and the
-   collector regards the earlier stretch as system setup rather than
-   measurement. `voltage-phumy` is an ADC calibration sheet.
+   `test` is now probe-only: its 11-column solar layout is in two source files
+   and the collector regards that stretch as system setup rather than
+   measurement, so both files are excluded by `config.FILE_EXCLUSIONS` and every
+   row of them is recorded in `rejects` with reason `station_setup`. What remains
+   is 33,377 readings from the 4-column `nix`/`temp`/`wifi` probe, 2020-07-05 to
+   2020-08-21. `voltage-phumy` is an ADC calibration sheet.
 9. **`aisvn.temp_c` is in tenths before 2020-06-17 15:20 local and degrees
    after.** 1,359 readings are the placeholder `200`, 114 are tenths (335 =
    33.5 °C), and 55,261 after the recompile are plain degrees. The rollup will

@@ -5,6 +5,48 @@ the raw archive. The format follows [Keep a Changelog](https://keepachangelog.co
 versions follow [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
+### Changed
+
+- **The `test` station is now probe-only.** The collector's account is that its
+  11-column solar layout was system setup rather than measurement, and that the
+  readings are the 4-column `nix`/`temp`/`wifi` probe that follows. `test` keeps
+  **33,377 readings**, 2020-07-05 to 2020-08-21, with no solar channel at all.
+
+  The exclusion is by **source file, not by date**, and it has to be.
+  `IFTTT_test (1).xlsx` *starts* on 2020-06-14, but its June rows duplicate
+  `IFTTT_test.xlsx` and were absorbed by the primary key, so everything it
+  uniquely contributes is **4,120 readings dated 2020-07-01 18:18 to 2020-07-08
+  12:12** — after the probe had already begun, and still not measurements. A
+  timestamp cut-off at 2020-07-01 would have kept all of them. Those two files
+  are the only 11-column files in the folder, so excluding them by name is both
+  simpler and correct where a date would not be.
+
+  | | before | after |
+  |---|---:|---:|
+  | `readings` | 734,908 | **730,914** |
+  | `duplicate_ts` | 4,399 | 2,249 |
+  | rejected cells | 220,180 | **226,321** |
+  | `notes` | 10 | 12 |
+  | `unconfirmed_regimes` | 3 | 2 |
+
+  The three numbers that look odd are all the same fact. Removing the two files
+  takes **3,994 readings** and a further **2,150 rows that were already
+  duplicates** of rows held in the other file — which is why `duplicate_ts` falls
+  by 2,150 while the recorded exclusion is **6,144 rows**. What left the readings
+  and what left the archive are different questions and both are in the baseline.
+
+  **Nothing vanished.** This is a whole-file exclusion, the coarsest decision the
+  pipeline makes, so `config.FILE_EXCLUSIONS` is a new mechanism rather than an
+  extension of `ROW_EXCLUSIONS`, and it records every data row into `rejects`
+  with `reason = 'station_setup'`, its sheet row and its timestamp. "We did not
+  ingest these two files" is only defensible if every row of them can still be
+  pointed at, and one rationale per file goes into `notes` so the reason is
+  readable without opening the config.
+
+  The 4,120 July readings were also the ones published 1000× too small by the
+  `test` scale regimes, so this removes that error at the same time and
+  `unconfirmed_regimes` falls to 2 because `test.solar2_v` no longer has data.
+
 ### Fixed
 
 - **The `aisvn` applet was recompiled mid-record and the scale window said

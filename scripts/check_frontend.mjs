@@ -198,12 +198,21 @@ check('bench stations are present but flagged unpublished', () => {
 })
 
 check('quality.json carries the counts the UI displays', () => {
-  assert.equal(quality.totals.readings, 734908)
+  // 730,914 since the collector's account of the test station removed its
+  // 11-column solar layout. The site displays this number, so a change to it has
+  // to fail here rather than appear quietly on the Data quality tab.
+  assert.equal(quality.totals.readings, 730914)
   assert.equal(quality.source_files.total, 364)
   assert.equal(quality.source_files.without_header, 305)
   assert.ok(Array.isArray(quality.regimes))
   assert.ok(Array.isArray(quality.notes))
-  assert.ok(quality.notes.length >= 10)
+  // 12: the ten recovered from data cells, plus one rationale per excluded file.
+  assert.ok(quality.notes.length >= 12, `expected >= 12 notes, got ${quality.notes.length}`)
+  // And the exclusion is visible as a groupable category, not a silent hole.
+  assert.ok(
+    quality.rejects.by_reason.some((r) => r.reason === 'station_setup'),
+    'the excluded test files are not in rejects.by_reason',
+  )
 })
 
 check('a folder that changed layout keeps both layouts, not the last one', () => {
@@ -231,10 +240,20 @@ check('a folder that changed layout keeps both layouts, not the last one', () =>
   assert.equal(byWidth[11].raw_name, 'power', 'the 11-column layout has power at index 4')
   assert.equal(byWidth[11].canonical_col, 'power_w')
   assert.ok(byWidth[10].n_files < byWidth[11].n_files, 'the wider layout should cover more files')
-  // `test` is two unrelated schemas in one folder: 4 columns of nix/temp/wifi
-  // probe for 16 of its 19 files, 11 columns of solar channels for 2.
+  // `test` *was* two unrelated schemas in one folder -- 4 columns of
+  // nix/temp/wifi probe and 11 columns of solar channels. The collector's account
+  // is that the solar stretch was system setup rather than measurement, so those
+  // two files are excluded and `test` now has one layout. The exclusion is
+  // recorded row by row in `rejects` with reason `station_setup`, which is
+  // asserted above; this asserts the layout itself is gone rather than merely
+  // flagged, so a layout cannot come back through a donor.
   const widths = new Set(defs.filter((d) => d.station_id === 'test').map((d) => d.n_columns))
-  assert.ok(widths.has(4) && widths.has(11), `test should have both layouts, saw ${[...widths]}`)
+  assert.deepEqual([...widths], [4], `test should have only the probe layout, saw ${[...widths]}`)
+  const testCols = defs.filter((d) => d.station_id === 'test').map((d) => d.canonical_col)
+  assert.ok(
+    !testCols.some((c) => c && (c.includes('solar') || c.includes('battery'))),
+    `test must have no solar or battery channel, saw ${testCols.join(',')}`,
+  )
 })
 
 check('the uptime counter is published, since it is the only reboot evidence', () => {
